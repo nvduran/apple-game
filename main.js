@@ -22,6 +22,7 @@ class GameScene extends Phaser.Scene {
                 this.remainingTime = 60;
                 this.coinMusic;
                 this.backgroundMusic;
+                this.emitter;
         }
 
         preload() {
@@ -63,6 +64,15 @@ class GameScene extends Phaser.Scene {
                 });
 
                 this.timedEvent = this.time.delayedCall(3000, this.gameOver, [], this);
+
+                this.emitter = this.add.particles(0, 0, "money", {
+                        speed: 100,
+                        gravityY: speedDown - 200,
+                        scale: 0.04,
+                        duration: 100,
+                        emitting: false,
+                });
+                this.emitter.startFollow(this.player, this.player.width / 2, this.player.height / 2);
         }
 
         update() {
@@ -84,7 +94,8 @@ class GameScene extends Phaser.Scene {
         }
 
         targetHit() {
-                this.coinMusic.play();
+                // this.coinMusic.play();
+                this.emitter.start();
                 this.target.setY(0);
                 this.target.setX(Math.random() * sizes.width - 20);
                 this.points++;
