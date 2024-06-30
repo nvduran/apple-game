@@ -8,6 +8,12 @@ const sizes = {
 
 const speedDown = 100;
 
+const gameStartDiv = document.getElementById("gameStartDiv");
+const gameStartBtn = document.getElementById("gameStartBtn");
+const gameEndDiv = document.getElementById("gameEndDiv");
+const gameWinLoseSpan = document.getElementById("gameWinLoseSpan");
+const gameEndScoreSpan = document.getElementById("gameScoreSpan");
+
 class GameScene extends Phaser.Scene {
         constructor() {
                 super("scene-game");
@@ -34,6 +40,8 @@ class GameScene extends Phaser.Scene {
         }
 
         create() {
+                this.scene.pause("scene-game");
+
                 this.backgroundMusic = this.sound.add("bgMusic");
                 this.coinMusic = this.sound.add("coin");
                 // this.backgroundMusic.play();
@@ -123,3 +131,9 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+
+gameStartBtn.addEventListener("click", () => {
+        gameStartDiv.style.display = "none";
+        gameEndDiv.style.display = "none";
+        game.scene.resume("scene-game");
+});
