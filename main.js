@@ -6,7 +6,7 @@ const sizes = {
         height: 500,
 };
 
-const speedDown = 300;
+const speedDown = 100;
 
 class GameScene extends Phaser.Scene {
         constructor() {
@@ -14,25 +14,66 @@ class GameScene extends Phaser.Scene {
                 this.player;
                 this.cursor;
                 this.playerSpeed = speedDown + 50;
+                this.target;
+                this.points = 0;
+                this.textScore;
+                this.textTime;
+                this.timedEvent;
+                this.remainingTime = 60;
+                this.coinMusic;
+                this.backgroundMusic;
         }
 
         preload() {
                 this.load.image("bg", "assets/bg.png");
                 this.load.image("basket", "assets/basket.png");
+                this.load.image("apple", "assets/apple.png");
+                this.load.audio("bgMusic", "assets/bgMusic.mp3");
+                this.load.audio("coin", "assets/coin.mp3");
         }
 
         create() {
+                this.backgroundMusic = this.sound.add("bgMusic");
+                this.coinMusic = this.sound.add("coin");
+                // this.backgroundMusic.play();
+
                 this.add.image(0, 0, "bg").setOrigin(0, 0);
                 //added physics to the player
                 this.player = this.physics.add.image(0, sizes.height - 100, "basket").setOrigin(0, 0);
                 this.player.setImmovable(true);
                 this.player.body.allowGravity = false;
+                this.player.setSize(80, 15).setOffset(10, 40);
 
                 this.cursor = this.input.keyboard.createCursorKeys();
                 this.player.setCollideWorldBounds(true);
+
+                this.target = this.physics.add.image(0, 0, "apple").setOrigin(0, 0);
+                this.target.setMaxVelocity(0, speedDown);
+
+                this.physics.add.overlap(this.target, this.player, this.targetHit, null, this);
+
+                this.textScore = this.add.text(10, 10, `Score: ${this.points}`, {
+                        fontSize: "24px Arial",
+                        fill: "#000",
+                });
+
+                this.textTime = this.add.text(sizes.width - 100, 10, `Time: 0`, {
+                        fontSize: "24px Arial",
+                        fill: "#000",
+                });
+
+                this.timedEvent = this.time.delayedCall(3000, this.gameOver, [], this);
         }
 
         update() {
+                this.remainingTime = this.timedEvent.getRemainingSeconds();
+                this.textTime.setText(`Time: ${this.remainingTime.toFixed(0)}`);
+
+                if (this.target.y > sizes.height) {
+                        this.target.setY(0);
+                        this.target.setX(Math.random() * sizes.width - 20);
+                }
+
                 const { left, right } = this.cursor;
 
                 if (left.isDown) {
@@ -40,6 +81,18 @@ class GameScene extends Phaser.Scene {
                 } else if (right.isDown) {
                         this.player.setVelocityX(this.playerSpeed);
                 }
+        }
+
+        targetHit() {
+                this.coinMusic.play();
+                this.target.setY(0);
+                this.target.setX(Math.random() * sizes.width - 20);
+                this.points++;
+                this.textScore.setText(`Score: ${this.points}`);
+        }
+
+        gameOver() {
+                console.log("Game Over");
         }
 }
 
